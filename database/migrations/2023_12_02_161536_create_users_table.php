@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('full_name');
             $table->string('phone_number')->unique();
-            $table->unsignedBigInteger('account_number'); //foreign key column
+            $table->unsignedBigInteger('account_number')->unique(); //foreign key column
             $table->timestamp('phone_number_verified_at')->nullable();
             $table->string('pin');
             $table->rememberToken();
             $table->timestamps();
 
-            $table->foreign('account_number')->references('account_number')->on('accounts'); //foreign key constraint
+            $table->foreign('account_number')->references('account_number')->on('accounts')->onDelete('cascade'); //foreign key constraint
         });
     }
 
