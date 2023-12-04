@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Models\User;
+use App\Models\Account;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UserController extends Controller
 {
@@ -40,17 +41,34 @@ class UserController extends Controller
                 'pin' => $validatedData['pin']
             ]);
             
-            return response()->json(['message' => 'User created successfully', 'user' => $user, 'account number' => $user->id]);
-            
+            // Create a new account with default values
+            $account = Account::create([
+                'account_number' => $user->id,
+                'account_type' => 'generated',
+                'account_balance' => 0,
+                'status' => 0,
+            ]);
+            $account->save();
+
+            return response()->json(['message' => 'User created successfully', 'user' => $user, 'account' => $account]);
+
         } catch (ValidationException $e) {
             // If validation fails, return validation errors
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (Exception $e) {
             // Log the exception details
             Log::error('User creation failed: ' . $e->getMessage());
+            
+            // If account creation fails, delete the created user and return an error
+            if (isset($user)) {
+                $user->delete();
+            }
+
             // If any other exception occurs, return a generic error message
             return response()->json(['error' => 'Failed to create user.'], 500);
         }
+
+       
     } 
 
     /**

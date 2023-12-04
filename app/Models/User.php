@@ -18,21 +18,21 @@ class User extends Authenticatable
     //     parent::boot();
 
     //     static::creating(function ($user) {
-    //         $user->id = static::generateIdNumber();
+    //         $user->account_number = static::generateAccountNumber();
     //     });
     // }
 
-    // protected static function generateIdNumber()
+    // protected static function generateAccountNumber()
     // {
     //     // Generate a unique random account number of length 8
-    // $IdNumber = mt_rand(1000000000, 9999999999);
+    // $accountNumber = mt_rand(1000000000, 9999999999);
 
     // // Ensure the generated account number is unique
-    // while (static::where('account_number', $IdNumber)->exists()) {
-    //     $IdNumber = mt_rand(1000000000, 9999999999);
+    // while (static::where('account_number', $accountNumber)->exists()) {
+    //     $accountNumber = mt_rand(1000000000, 9999999999);
     // }
 
-    // return $IdNumber;
+    // return $accountNumber;
     // }
 
 
