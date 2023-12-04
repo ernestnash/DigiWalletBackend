@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Account;
+use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -23,52 +25,33 @@ class UserController extends Controller
      */
     public function register(Request $request)
     {
+        try {
 
-        // Generate a unique account number
-        $accountNumber = User::generateAccountNumber();
+            $validatedData = $request->validate([
+                'full_name' => 'required|string',
+                'phone_number' => 'required|unique:users,phone_number|string',
+                'pin' => 'required|string',
+            ]);
 
-        // Check if the account number already exists
-        $accountExists = Account::where('account_number', $accountNumber)->exists();
 
-        if (!$accountExists) {
-            // The account does not exist, handle accordingly
-            return response()->json(['error' => 'Account not found'], 404);
+            $user = User::create([
+                'full_name' => $validatedData['full_name'],
+                'phone_number' => $validatedData['phone_number'],
+                'pin' => $validatedData['pin']
+            ]);
+            
+            return response()->json(['message' => 'User created successfully', 'user' => $user, 'account number' => $user->id]);
+            
+        } catch (ValidationException $e) {
+            // If validation fails, return validation errors
+            return response()->json(['error' => $e->validator->errors()], 422);
+        } catch (Exception $e) {
+            // Log the exception details
+            Log::error('User creation failed: ' . $e->getMessage());
+            // If any other exception occurs, return a generic error message
+            return response()->json(['error' => 'Failed to create user.'], 500);
         }
-
-        // Create a new account with default values
-        $account = Account::create([
-            'account_number' => $accountNumber,
-            'account_type' => 'generated',
-            'account_balance' => 0,
-            'status' => 0,
-            // Add other default values as needed
-        ]);
-
-        Log::info("Generated Account Number: $accountNumber");
-
-        
-        // Validate and store new user data
-        $validatedData = $request->validate([
-            'full_name' => 'required|string',
-            'phone_number' => 'required|unique:users,phone_number|string',
-            // 'account_number' => 'required|unique:users,account_number|string',
-            'pin' => 'required|string',
-            // Add more validation rules as needed
-        ]);
-
-        
-
-        $user = User::create([
-            'full_name' => $validatedData['full_name'],
-            'phone_number' => $validatedData['phone_number'],
-            'account_number' => $accountNumber,
-            'pin' => $validatedData['pin']
-        ]);
-
-        // $user = User::create($validatedData);
-
-        return response()->json(['message' => 'User created successfully', 'user' => $user, 'account number' => $account]);
-    }
+    } 
 
     /**
      * Store a newly created resource in storage.
@@ -96,10 +79,22 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        // Retrieve and return user by ID
+        try{
+            // Retrieve and return user by ID
         $user = User::findOrFail($id);
 
         return response()->json(['user' => $user]);
+        } catch (ModelNotFoundException $e) {
+            // Log the exception details
+            Log::error('User not found: ' . $e->getMessage());
+            // Return a specific error message for user not found
+            return response()->json(['error' => 'User not found.'], 404);
+        } catch (Exception $e) {
+            // Log the exception details
+            Log::error('Fetch User failed: ' . $e->getMessage());
+            // If any other exception occurs, return a generic error message
+            return response()->json(['error' => 'Failed to access Database.'], 500);
+        }
     }
 
     /**
@@ -119,19 +114,26 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // Validate and update user data
-        $validatedData = $request->validate([
-            'full_name' => 'required|string',
-            'phone_number' => 'required|string',
-            'account_number' => 'required|string',
-            'pin' => 'required|string',
-            // Add more validation rules as needed
-        ]);
+        try {
+            // Validate and update user data
+            $validatedData = $request->validate([
+                'full_name' => 'required|string',
+                'phone_number' => 'required|string',
+            ]);
 
-        $user = User::findOrFail($id);
-        $user->update($validatedData);
+            $user = User::findOrFail($id);
+            $user->update($validatedData);
 
-        return response()->json(['message' => 'User updated successfully', 'user' => $user]);
+            return response()->json(['message' => 'User updated successfully', 'user' => $user]);
+        } catch(ValidationException $e) {
+            // If validation fails, return validation errors
+            return response()->json(['error' => $e->validator->errors()], 422);
+        } catch(Exception $e) {
+            // Log the exception details
+            Log::error('Update User failed: ' . $e->getMessage());
+            // If any other exception occurs, return a generic error message
+            return response()->json(['error' => 'Failed to Update User on Database.'], 500);
+        }
     }
 
     /**
@@ -139,10 +141,20 @@ class UserController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        // Delete user by ID
-        $user = User::findOrFail($id);
-        $user->delete();
+        try {
+            // Delete user by ID
+            $user = User::findOrFail($id);
+            $user->delete();
 
-        return response()->json(['message' => 'User deleted successfully']);
+            return response()->json(['message' => 'User deleted successfully']);
+        } catch(ValidationException $e) {
+            // If validation fails, return validation errors
+            return response()->json(['error' => $e->validator->errors()], 422);
+        } catch(Exception $e) {
+            // Log the exception details
+            Log::error('Delete User failed: ' . $e->getMessage());
+            // If any other exception occurs, return a generic error message
+            return response()->json(['error' => 'Failed to Delete User from Database.'], 500);
+        }
     }
 }

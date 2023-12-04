@@ -18,6 +18,8 @@ return new class extends Migration
             $table->decimal('account_balance', 10, 2);
             $table->string('status');
             $table->timestamps();
+
+            $table->foreign('account_number')->references('id')->on('users'); //foreign key constraint
         });
     }
 

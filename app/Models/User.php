@@ -13,27 +13,27 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected static function boot()
-    {
-        parent::boot();
+    // protected static function boot()
+    // {
+    //     parent::boot();
 
-        static::creating(function ($user) {
-            $user->account_number = static::generateAccountNumber();
-        });
-    }
+    //     static::creating(function ($user) {
+    //         $user->id = static::generateIdNumber();
+    //     });
+    // }
 
-    protected static function generateAccountNumber()
-    {
-        // Generate a unique random account number of length 8
-    $accountNumber = mt_rand(1000000000, 9999999999);
+    // protected static function generateIdNumber()
+    // {
+    //     // Generate a unique random account number of length 8
+    // $IdNumber = mt_rand(1000000000, 9999999999);
 
-    // Ensure the generated account number is unique
-    while (static::where('account_number', $accountNumber)->exists()) {
-        $accountNumber = mt_rand(1000000000, 9999999999);
-    }
+    // // Ensure the generated account number is unique
+    // while (static::where('account_number', $IdNumber)->exists()) {
+    //     $IdNumber = mt_rand(1000000000, 9999999999);
+    // }
 
-    return $accountNumber;
-    }
+    // return $IdNumber;
+    // }
 
 
     /**
@@ -44,7 +44,6 @@ class User extends Authenticatable
     protected $fillable = [
         'full_name',
         'phone_number',
-        'account_number',
         'pin',
     ];
 
