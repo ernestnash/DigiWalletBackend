@@ -13,29 +13,6 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    // protected static function boot()
-    // {
-    //     parent::boot();
-
-    //     static::creating(function ($user) {
-    //         $user->account_number = static::generateAccountNumber();
-    //     });
-    // }
-
-    // protected static function generateAccountNumber()
-    // {
-    //     // Generate a unique random account number of length 8
-    // $accountNumber = mt_rand(1000000000, 9999999999);
-
-    // // Ensure the generated account number is unique
-    // while (static::where('account_number', $accountNumber)->exists()) {
-    //     $accountNumber = mt_rand(1000000000, 9999999999);
-    // }
-
-    // return $accountNumber;
-    // }
-
-
     /**
      * The attributes that are mass assignable.
      *
@@ -46,6 +23,10 @@ class User extends Authenticatable
         'phone_number',
         'pin',
     ];
+
+    public function accounts() {
+        return $this->hasMany(Account::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -67,3 +48,4 @@ class User extends Authenticatable
         'pin' => 'hashed',
     ];
 }
+

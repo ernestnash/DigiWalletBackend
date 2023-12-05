@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,11 +25,34 @@ use App\Http\Controllers\UserController;
 // Create a new user
 Route::post('/users', [UserController::class, 'register']);
 
-// Retrieve a user by ID
-Route::get('/users/{id}', [UserController::class, 'show']);
+// Logging in a new user
+Route::post('/users/login', [UserController::class, 'authenticate']);
 
-// Update a user by ID
-Route::put('/users/{id}', [UserController::class, 'update']);
+// Route::middleware("auth:sanctum")->group(function () {
+    // Retrieve a user by ID
+    Route::get('/users/{id}', [UserController::class, 'show']);
 
-// Delete a user by ID
-Route::delete('/users/{id}', [UserController::class, 'destroy']);
+    // Update a user by ID
+    Route::put('/users/{id}', [UserController::class, 'update']);
+
+    // Delete a user by ID
+    Route::delete('/users/{id}', [UserController::class, 'destroy']);
+// });
+
+
+// Route::middleware("auth:sanctum")->group(function () {
+    // Create a new transaction
+    Route::post('/transactions', [TransactionController::class, 'create']);
+
+    // Retrieve all transactions
+    Route::get('/transactions', [TransactionController::class, 'index']);
+
+    // Retrieve a transaction by ID
+    Route::get('/transactions/{id}', [TransactionController::class, 'show']);
+
+    // Update a transaction by ID
+    Route::put('/transactions/{id}', [TransactionController::class, 'update']);
+
+    // Delete a transaction by ID
+    Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
+// });

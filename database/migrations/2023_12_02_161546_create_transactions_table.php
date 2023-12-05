@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string('transaction_type');
             $table->string('amount');
             $table->string('description');
-            $table->string('status');
             $table->string('reference');
             $table->string('method');
             $table->string('fee');
-            $table->string('running_balance');
+            $table->decimal('running_balance', 10, 2);
+            $table->string('status');
             $table->timestamps();
 
             $table->foreign('account_number')->references('account_number')->on('accounts'); //foreign key constraint

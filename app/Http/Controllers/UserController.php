@@ -8,6 +8,7 @@ use App\Models\Account;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -46,7 +47,7 @@ class UserController extends Controller
                 'account_number' => $user->id,
                 'account_type' => 'generated',
                 'account_balance' => 0,
-                'status' => 0,
+                'status' => 'Pending First Transaction',
             ]);
             $account->save();
 
@@ -74,22 +75,35 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function login(Request $request)
+    public function authenticate(Request $request)
     {
-        $request->validate([
-            'account_number' => 'required|string',
-            'pin' => 'required|string',
-        ]);
-
-        $credentials = $request->only('account_number', 'pin');
-
-        if (Auth::attempt($credentials)) {
-            // Authentication passed, user is logged in
-            return redirect()->intended('/dashboard')->with('success', 'Welcome' . " " . Auth::user()->username); // Redirect to the intended page with success message
-        } else {
-            // Authentication failed, user credentials are invalid
-            return redirect()->back()->withErrors(['Invalid credentials.']); // redirect back with error message
+        try {
+            $request->validate([
+                'id' => 'required|string',
+                'pin' => 'required|string',
+            ]);
+        
+            $credentials = $request->only('id', 'pin');
+            Log::info('Credentials:', $credentials);
+            Log::info('Login attempt:', $request->all());
+            if (Auth::attempt($credentials)) {
+                // Authentication passed, user is logged in
+                Log::info('User logged in successfully');
+                return response()->json(['success' => 'User logged in successfully.']);
+                // or you can redirect as follows:
+                // return redirect()->intended('/users')->with('success', 'Welcome' . " " . Auth::user()->full_name);
+            } else {
+                // Authentication failed, user credentials are invalid
+                Log::error('Failed to login user. Credentials:', $credentials);
+                return response()->json(['error' => 'Failed to login user.'], 500);
+                // or you can redirect as follows:
+                // return redirect()->back()->withErrors(['Invalid credentials.']);
+            }
+        } catch (Exception $e) {
+            Log::error('Exception during login:', ['exception' => $e]);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
+        
     }
 
     /**

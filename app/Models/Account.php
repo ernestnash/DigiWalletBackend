@@ -23,4 +23,8 @@ class Account extends Model
         'status',
     ];
 
+    public function User() {
+        return ($this->hasMany(Account::class));
+    }
+
 }
