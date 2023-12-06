@@ -10,13 +10,20 @@ class Cheque extends Model
     use HasFactory;
 
     protected $fillable = [
+        'cheque_number',
         'account_number',
-        'account_type',
-        'account_balance',
-        'status',
+        'payee_name',
+        'amount',
+        'cheque_status',
+        'date_issued',
+        'date_cashed',
+        'authorization_status',
+        'stop_payment_flag',
+        'issuing_branch',
+        'memo',
     ];
 
-    
+
     public function account() {
         return $this->belongsTo(Account::class, 'account_number', 'account_number');
     }

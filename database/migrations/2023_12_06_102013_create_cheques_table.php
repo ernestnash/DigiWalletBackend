@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cheques', function (Blueprint $table) {
-            $table->bigIncrements('cheque_number');
+            $table->id();
+            $table->string('cheque_number')->unique();
             $table->unsignedBigInteger('account_number');
+            $table->string('payee_name');
             $table->decimal('amount', 10, 2);
             $table->enum('cheque_status', ['issued', 'cashed', 'void']);
             $table->date('date_issued');

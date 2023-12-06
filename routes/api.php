@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ChequeController;
 use App\Http\Controllers\TransactionController;
 
 /*
@@ -58,4 +59,10 @@ Route::post('/users/login', [UserController::class, 'authenticate']);
 
     // Delete a transaction by ID
     // Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
+
+    // create a new cheque
+    Route::post('/cheques/issue', [ChequeController::class, 'create']);
+
+    // Update a cheque
+    Route::put('/cheques/{id}', [ChequeController::class, 'update']);
 // });
