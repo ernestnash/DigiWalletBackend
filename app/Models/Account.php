@@ -24,7 +24,7 @@ class Account extends Model
     ];
 
     public function User() {
-        return ($this->hasMany(Account::class));
+        return $this->belongsTo(User::class, 'account_number', 'id');
     }
 
 }

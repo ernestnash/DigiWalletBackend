@@ -27,4 +27,11 @@ class Transaction extends Model
         'running_balance',
         'status',
     ];
+
+    public function account() {
+        return $this->belongsTo(Account::class, 'account_number', 'account_number');
+    }
+    public function user() {
+        return $this->belongsTo(User::class, 'account_number', 'id');
+    }
 }

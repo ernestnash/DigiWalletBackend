@@ -48,14 +48,14 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::post('/transactions', [TransactionController::class, 'create']);
 
     // Retrieve all transactions
-    Route::get('/transactions', [TransactionController::class, 'index']);
+    // Route::get('/transactions', [TransactionController::class, 'index']);
 
     // Retrieve a transaction by ID
     Route::get('/transactions/{id}', [TransactionController::class, 'show']);
 
     // Update a transaction by ID
-    Route::put('/transactions/{id}', [TransactionController::class, 'update']);
+    // Route::put('/transactions/{id}', [TransactionController::class, 'update']);
 
     // Delete a transaction by ID
-    Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
+    // Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
 // });

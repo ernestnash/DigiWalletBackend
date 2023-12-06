@@ -16,12 +16,12 @@ return new class extends Migration
             $table->unsignedBigInteger('account_number'); //foreign key column
             $table->string('transaction_type');
             $table->string('amount');
-            $table->string('description');
-            $table->string('reference');
-            $table->string('method');
-            $table->string('fee');
+            $table->string('description')->nullable();
+            $table->string('reference')->nullable();
+            $table->string('method')->nullable();
+            $table->string('fee')->nullable();
             $table->decimal('running_balance', 10, 2);
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->timestamps();
 
             $table->foreign('account_number')->references('account_number')->on('accounts'); //foreign key constraint

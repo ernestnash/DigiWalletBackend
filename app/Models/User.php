@@ -25,7 +25,10 @@ class User extends Authenticatable
     ];
 
     public function accounts() {
-        return $this->hasMany(Account::class);
+        return $this->hasMany(Account::class, 'account_number', 'id');
+    }
+    public function transactions() {
+        return $this->hasMany(Transaction::class, 'account_number', 'id');
     }
 
     /**
