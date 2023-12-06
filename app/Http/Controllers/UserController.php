@@ -46,8 +46,8 @@ class UserController extends Controller
             // Create a new account with default values
             $account = Account::create([
                 'account_number' => $user->id,
-                'account_type' => 'generated',
-                'account_balance' => 0,
+                'account_type' => 'Generated',
+                'account_balance' => 0.0,
                 'status' => 'Pending First Transaction',
             ]);
             $account->save();
@@ -108,11 +108,11 @@ class UserController extends Controller
         
     }
 
-    public function getUserInfo()
-    {
-        $user = auth()->user(); // Assuming the user is authenticated
-        return response()->json(['full_name' => $user->full_name, 'id' => $user->id]);
-    }
+    // public function getUserInfo()
+    // {
+    //     $user = auth()->user(); // Assuming the user is authenticated
+    //     return response()->json(['full_name' => $user->full_name, 'id' => $user->id]);
+    // }
 
     /**
      * Display the specified resource.

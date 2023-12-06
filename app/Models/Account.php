@@ -23,8 +23,14 @@ class Account extends Model
         'status',
     ];
 
-    public function User() {
+    public function user() {
         return $this->belongsTo(User::class, 'account_number', 'id');
+    }
+    public function transactions() {
+        return $this->hasMany(Transaction::class, 'account_number', 'id');
+    }
+    public function cheque() {
+        return $this->hasMany(Cheque::class, 'account_number', 'id');
     }
 
 }

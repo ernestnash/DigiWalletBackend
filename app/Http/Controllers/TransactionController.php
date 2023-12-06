@@ -98,7 +98,9 @@ class TransactionController extends Controller
                 $account->increment('account_balance', $validatedData['amount']);
             } elseif ($validatedData['transaction_type'] === 'withdrawal') {
                 $account->decrement('account_balance', $validatedData['amount']);
-            }
+            } // elseif ($validatedData['transaction_type'] === 'transfer') {
+            //     $account->decrement('account_balance', $validatedData['amount']);
+            // }
 
             // If there are no previous transactions, change the account status to active
             if (!$existingTransactions) {
@@ -137,12 +139,17 @@ class TransactionController extends Controller
             // Retrieve user by ID along with their transactions
             $user = User::with('transactions')->findOrFail($id);
 
+            // Check if the user has transactions
+            if ($user->transactions->isEmpty()) {
+                return response()->json(['message' => 'No Transactions to display.']);
+            }
+
             return response()->json(['user' => $user]);
         } catch (ModelNotFoundException $e) {
             // Log the exception details
-            Log::error('User not found: ' . $e->getMessage());
+            Log::error('Account not found: ' . $e->getMessage());
             // Return a specific error message for user not found
-            return response()->json(['error' => 'User not found.'], 404);
+            return response()->json(['error' => 'Account not found.'], 404);
         } catch (Exception $e) {
             // Log the exception details
             Log::error('Fetch User failed: ' . $e->getMessage());

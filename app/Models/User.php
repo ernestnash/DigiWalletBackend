@@ -31,6 +31,10 @@ class User extends Authenticatable
         return $this->hasMany(Transaction::class, 'account_number', 'id');
     }
 
+    public function cheques() {
+        return $this->hasMany(Cheque::class, 'account_number', 'id');
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
