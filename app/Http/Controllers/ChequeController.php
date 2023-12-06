@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 
 class ChequeController extends Controller
@@ -161,48 +162,59 @@ class ChequeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $chequeData = Cheque::findOrFail( $id );
+        try {
+            // Retrieve the cheque data
+            $chequeData = Cheque::findOrFail($id);
 
-        // Set current date and time
-        $currentDateTime = Carbon::now();
+            // Set current date and time
+            $currentDateTime = Carbon::now();
 
-        $validatedData = $request->validate([
-            // 'cheque_number' => 'required|unique:cheques,cheque_number',
-            'account_number' => 'required',
-            'payee_name' => 'required|string',
-            'amount' => 'required|numeric',
-            'cheque_status' => 'nullable|in:issued,cashed,void',
-            'date_issued' => 'nullable',
-            'date_cashed' => 'nullable',
-            'authorization_status' => 'nullable|in:authorized,unauthorized',
-            'stop_payment_flag' => 'nullable',
-            'issuing_branch' => 'required',
-            'memo' => 'nullable|string',
-        ]);
+            // Validate the request data
+            $validatedData = $request->validate([
+                // 'cheque_number' => 'required|unique:cheques,cheque_number',
+                'account_number' => 'required',
+                'payee_name' => 'required|string',
+                'amount' => 'required|numeric',
+                'cheque_status' => 'nullable|in:issued,cashed,void',
+                'date_issued' => 'nullable|date',
+                'date_cashed' => 'nullable|date',
+                'authorization_status' => 'nullable|in:authorized,unauthorized',
+                'stop_payment_flag' => 'nullable',
+                'issuing_branch' => 'required',
+                'memo' => 'nullable|string',
+            ]);
 
-        
+            if (
+                // Update the cheque status to 'void' if needed
+                array_key_exists('authorization_status', $validatedData) &&
+                $validatedData['authorization_status'] === 'unauthorized' &&
+                $chequeData->cheque_status !== 'void'
+            ) {
+                $chequeData->update(['cheque_status' => 'void']);
+            }
+            // Update the date issued to the current date if needed
+            if (
+                array_key_exists('cheque_status', $validatedData) &&
+                $validatedData['cheque_status'] === 'cashed' &&
+                !isset($validatedData['date_issued'])
+            ) {
+                $chequeData->update(['date_cashed' => $currentDateTime]);
+            }
 
-        $chequeData->update($validatedData);
+            // Update the cheque data
+            $chequeData->update($validatedData);
 
-        // Update the cheque status to 'cashed' if needed
-        if ($validatedData['cheque_status'] === 'cashed') {
-            $chequeData->update(['date_cashed' => $currentDateTime]);
+            return response()->json(['message' => 'Cheque updated successfully', 'Cheque' => $chequeData]);
+        } catch (ValidationException $validationException) {
+            // Handle validation errors
+            return response()->json(['error' => $validationException->errors()], 400);
+        } //catch (ModelNotFoundException $notFoundException) {
+            // Handle model not found exception
+            //return response()->json(['error' => 'Cheque not found'], 404);
+        catch (Exception $exception) {
+            // Handle other exceptions
+            return response()->json(['error' => $exception->getMessage()], 500);
         }
-        // $cheque = Cheque::create([
-        //     'cheque_number' => $chequeData->cheque_number,
-        //     'account_number' => $validatedData['account_number'],
-        //     'payee_name' => $validatedData['payee_name'],
-        //     'amount' => $validatedData['amount'],
-        //     'cheque_status' => $validatedData['cheque_status'],
-        //     'date_issued' => $chequeData->date_issued,
-        //     'date_cashed' => null,
-        //     'authorization_status' => $validatedData['authorization_status'],
-        //     'stop_payment_flag' => 1,
-        //     'issuing_branch' => $validatedData['issuing_branch'],
-        //     'memo' => $validatedData['memo'],
-        // ]);
-
-        return response()->json(['message' => 'Cheque updated successfully', 'Cheque' => $chequeData]);
     }
 
     /**
