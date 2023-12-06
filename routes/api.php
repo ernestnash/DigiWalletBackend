@@ -28,7 +28,10 @@ Route::post('/users', [UserController::class, 'register']);
 // Logging in a new user
 Route::post('/users/login', [UserController::class, 'authenticate']);
 
-// Route::middleware("auth:sanctum")->group(function () {
+Route::middleware("auth:sanctum")->group(function () {
+    // Retrieve user Data
+    Route::get("/users/{id}/data", [UserController::class, 'getUserInfo']);
+
     // Retrieve a user by ID
     Route::get('/users/{id}', [UserController::class, 'show']);
 
@@ -37,7 +40,7 @@ Route::post('/users/login', [UserController::class, 'authenticate']);
 
     // Delete a user by ID
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
-// });
+});
 
 
 // Route::middleware("auth:sanctum")->group(function () {

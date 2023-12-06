@@ -8,6 +8,7 @@ use App\Models\Account;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -68,9 +69,7 @@ class UserController extends Controller
             // If any other exception occurs, return a generic error message
             return response()->json(['error' => 'Failed to create user.'], 500);
         }
-
-       
-    } 
+} 
 
     /**
      * Store a newly created resource in storage.
@@ -79,14 +78,17 @@ class UserController extends Controller
     {
         try {
             $request->validate([
-                'id' => 'required|string',
+                'phone_number' => 'required|string',
                 'pin' => 'required|string',
             ]);
+
+            $user = User::where('phone_number', $request->input('phone_number'))->first();
         
-            $credentials = $request->only('id', 'pin');
-            Log::info('Credentials:', $credentials);
-            Log::info('Login attempt:', $request->all());
-            if (Auth::attempt($credentials)) {
+            $credentials = $request->only('phone_number', 'pin');
+            // Log::info('Credentials:', $credentials);
+            // Log::info('Login attempt:', $request->all());
+            if ($user || Hash::check($request->pin, $user->pin)) {
+            // if (Auth::attempt($credentials)) {
                 // Authentication passed, user is logged in
                 Log::info('User logged in successfully');
                 return response()->json(['success' => 'User logged in successfully.']);
@@ -104,6 +106,12 @@ class UserController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
         
+    }
+
+    public function getUserInfo()
+    {
+        $user = auth()->user(); // Assuming the user is authenticated
+        return response()->json(['full_name' => $user->full_name, 'id' => $user->id]);
     }
 
     /**
