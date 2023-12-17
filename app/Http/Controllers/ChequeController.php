@@ -73,7 +73,7 @@ class ChequeController extends Controller
             // Get current year
             $currentYear = date('Y');
 
-            $chequeNumber = sprintf("%03d", $userId) . '/' . $validatedData['account_number'] . '/' . sprintf("%03d", $nextChequeNumber) . ':' . $currentYear;
+            $chequeNumber = sprintf("%06d", $nextChequeNumber) . ':' . sprintf( "%06d", $validatedData['account_number']) . ':' . sprintf("%06d", $userId) . ':' . $currentYear;
 
 
             // Check if the generated cheque number already exists
