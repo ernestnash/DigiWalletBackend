@@ -74,6 +74,7 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    // Mobile App
     public function authenticate(Request $request)
     {
         try {
@@ -107,6 +108,36 @@ class UserController extends Controller
         }
         
     }
+
+    // WebApp
+    public function authenticateUser(Request $request)
+    {
+        $request->validate([
+            'phone_number' => 'required|string',
+            'pin' => 'required|string',
+        ]);
+
+        $user = User::where('phone_number', $request->input('phone_number'))->first();
+
+        if ($user && Hash::check($request->pin, $user->pin)) {
+            $credentials = $request->only('phone_number', 'pin');
+
+            if (Auth::attempt($credentials)) {
+                // Authentication passed, user is logged in
+                Log::info('User logged in successfully');
+                return redirect()->intended('/dashboard'); // Redirect to the intended page or any other desired page
+            } else {
+                Log::error('Failed to login user. Credentials:', $credentials);
+                // Authentication failed, user credentials are invalid
+                return redirect()->route('login')->withErrors(['Invalid credentials.']);
+            }
+        }
+
+        // Handle the case where the user does not exist or the password is incorrect
+        Log::error('User not found or incorrect password.', ['phone_number' => $request->input('phone_number')]);
+        return redirect()->route('login')->withErrors(['Invalid credentials.']);
+    }
+
 
     // public function getUserInfo()
     // {

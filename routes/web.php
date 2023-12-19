@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
 
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WebController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,19 +12,22 @@ use App\Http\Controllers\UserController;
 | routes are loaded by the RouteServiceProvider and all of them will
 | be assigned to the "web" middleware group. Make something great!
 |
-*/
+ */
 
+Route::get('/', function () {
+    return view('login');
+})->name('login');
 
+Route::post('/login', [WebController::class, 'Login'])->name('login-user');
 
 Route::get('/dashboard', function () {
     return view('admin.dashboard');
-});
+})->name('dashboard');
 
 Route::get('/register', function () {
     return view('register');
 })->name('register');
-Route::post('/users', [UserController::class, 'register'])->name('register-user');
-Route::get('/', function () {
-    return view('signin');
-})->name('signin');
-Route::post('/users/login', [UserController::class, 'authenticate'])->name('signin-user');
+
+Route::post('/register', [WebController::class, 'Register'])->name('register-user');
+
+

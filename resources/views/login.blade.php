@@ -19,15 +19,32 @@
                                 <div class="text-center">
                                     <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
                                 </div>
-                                <form class="user" action="{{ route('signin-user')}}">
+                                @if ($errors->any())
+                                    <div class="alert alert-danger">
+                                        {{-- <div>Something went wrong!</div> --}}
+                
+                                        <ul style="list-style: none">
+                                            @foreach ($errors->all() as $error )
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+                                @if(Session::has('success'))
+                                    <div class="alert alert-success">
+                                        {{ Session::get('success')}}
+                                    </div>
+                                @endif
+                                <form class="user" method="POST" action="{{ route('login-user') }}">
+                                    @csrf
                                     <div class="form-group">
-                                        <input type="email" class="form-control form-control-user"
-                                            id="exampleInputEmail" aria-describedby="emailHelp"
-                                            placeholder="Enter Email Address...">
+                                        <input type="text" class="form-control form-control-user"
+                                            id="exampleInputEmail" name="phone_number"
+                                            placeholder="Enter Account Number...">
                                     </div>
                                     <div class="form-group">
                                         <input type="password" class="form-control form-control-user"
-                                            id="exampleInputPassword" placeholder="Password">
+                                            id="exampleInputPassword" name="pin" placeholder="Enter Pin">
                                     </div>
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox small">
@@ -42,7 +59,7 @@
                                 </form>
                                 <hr>
                                 <div class="text-center">
-                                    <a class="small" href="forgot-password.html">Forgot Password?</a>
+                                    <a class="small" href="#">Forgot Password?</a>
                                 </div>
                                 <div class="text-center">
                                     <a class="small" href="{{ route('register')}}">Create an Account!</a>
