@@ -27,7 +27,7 @@ use App\Http\Controllers\TransactionController;
 Route::post('/users', [UserController::class, 'register']);
 
 // Logging in a new user
-Route::post('/users/login', [UserController::class, 'authenticate']);
+Route::post('/users/login', [UserController::class, 'authenticateUser']);
 
 // Route::middleware("auth:sanctum")->group(function () {
     // Retrieve user Data
