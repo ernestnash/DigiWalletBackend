@@ -1,43 +1,114 @@
 <?php
 namespace App\Http\Controllers;
+
+use Exception;
 use App\Models\User;
+use App\Models\Account;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
+
 class WebController extends Controller
 {
-    // public function index()
-    // {
-    //     return view('auth.login');
-    // }
-    public function Login(Request $request)
+    public function index()
     {
-        $request->validate([
+        return view('login');
+    }
+    public function dashboard()
+    {
+        return view('admin.dashboard');
+    }
+    public function login(Request $request)
+    {
+        $validatedData = $request->validate([
             'phone_number' => 'required|numeric|min:10',
             'pin' => 'required|min:4',
         ]);
-        $credentials = $request->only('phone_number', 'pin');
-        if (Auth::attempt($credentials)) {
-            return redirect()->intended('dashboard')
-                ->withSuccess('Signed in');
+
+        $user = User::where('phone_number', $validatedData['phone_number'])->first();
+
+        if (!$user) {
+            return redirect()->back()->with('error', 'The user does not exist. Please register.');
         }
-        return redirect()->back()->with('Error','Login details are not valid');
+
+        $plainPin = $validatedData['pin'];
+
+        if (Hash::check($plainPin, $user->pin)) {
+            Auth::login($user);
+
+            Log::info('User logged in successfully:', ['user_id' => $user->id]);
+
+            return redirect('/dashboard')->with('success', 'User login successful');
+        } else {
+            Log::error('Failed to login user:', ['user_id' => $user->id]);
+
+            return redirect()->back()->with('error', 'Incorrect Pin, Failed to login. Check your credentials.');
+        }
     }
+
+
     // public function registration()
     // {
     //     return view('auth.register');
     // }
-    public function Registration(Request $request)
+    public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-        ]);
-        $data = $request->all();
-        $check = $this->create($data);
-        return redirect("dashboard")->withSuccess('You have signed-in');
+        try {
+
+            $validatedData = $request->validate([
+                'first_name' => 'required|string',
+                'last_name' => 'required|string',
+                'email' => 'required|string|email',
+                'phone_number' => 'required|unique:users,phone_number|string',
+                'pin' => 'required|string',
+                'confirm_pin' => 'required|string',
+            ]);
+
+            if ($validatedData['pin'] != $validatedData['confirm_pin']) {
+                Log::error('Pins did not match');
+                return response()->json(['pins must match']);
+            }
+
+            $full_name = $validatedData['first_name'] . " " . $validatedData['last_name'];
+
+
+            $user = User::create([
+                'full_name' => $full_name,
+                'phone_number' => $validatedData['phone_number'],
+                'pin' => $validatedData['pin']
+            ]);
+
+            // Create a new account with default values
+            $account = Account::create([
+                'account_number' => $user->id,
+                'account_type' => 'Generated',
+                'account_balance' => 0.0,
+                'status' => 'Pending First Transaction',
+            ]);
+            $account->save();
+
+            return redirect()->intended('dashboard')->withSuccess('Signed in');
+            // return response()->json(['message' => 'User created successfully', 'user' => $user, 'account' => $account]);
+
+        } catch (ValidationException $e) {
+            // If validation fails, return validation errors
+            return response()->json(['error' => $e->validator->errors()], 422);
+        } catch (Exception $e) {
+            // Log the exception details
+            Log::error('User creation failed: ' . $e->getMessage());
+
+            // If account creation fails, delete the created user and return an error
+            if (isset($user)) {
+                $user->delete();
+            }
+
+            // If any other exception occurs, return a generic error message
+            return response()->json(['error' => 'Failed to create user.'], 500);
+        }
     }
     public function create(array $data)
     {

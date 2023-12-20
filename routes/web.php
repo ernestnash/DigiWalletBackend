@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
 /*
@@ -14,15 +14,19 @@ use App\Http\Controllers\WebController;
 |
  */
 
-Route::get('/', function () {
-    return view('login');
-})->name('login');
+// Route::get('/', function () {
+//     return view('login');
+// })->name('login');
 
+
+Route::get('/', [WebController::class, 'index'])->name('login');
+Route::get('/dashboard', [WebController::class, 'dashboard'])->name('dashboard');
 Route::post('/login', [WebController::class, 'Login'])->name('login-user');
 
-Route::get('/dashboard', function () {
-    return view('admin.dashboard');
-})->name('dashboard');
+
+// Route::get('/dashboard', function () {
+//     return view('admin.dashboard');
+// })->name('dashboard');
 
 Route::get('/register', function () {
     return view('register');

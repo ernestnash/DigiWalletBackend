@@ -35,16 +35,16 @@
                                         {{ Session::get('success')}}
                                     </div>
                                 @endif
-                                <form class="user" method="POST" action="{{ route('login-user') }}">
+                                <form class="user" method="POST" action="{{ url('login') }}">
                                     @csrf
                                     <div class="form-group">
                                         <input type="text" class="form-control form-control-user"
-                                            id="exampleInputEmail" name="phone_number"
+                                            id="phone_number" name="phone_number"
                                             placeholder="Enter Account Number...">
                                     </div>
                                     <div class="form-group">
                                         <input type="password" class="form-control form-control-user"
-                                            id="exampleInputPassword" name="pin" placeholder="Enter Pin">
+                                            id="pin" name="pin" placeholder="Enter Pin">
                                     </div>
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox small">

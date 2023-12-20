@@ -31,14 +31,24 @@ class UserController extends Controller
         try {
 
             $validatedData = $request->validate([
-                'full_name' => 'required|string',
+                'first_name' => 'required|string',
+                'last_name' => 'required|string',
+                'email' => 'required|string|email',
                 'phone_number' => 'required|unique:users,phone_number|string',
                 'pin' => 'required|string',
+                'confirm_pin' => 'required|string',
             ]);
+
+            if ($validatedData['pin'] != $validatedData['confirm_pin']) {
+                Log::error('Pins did not match');
+                return response()->json(['pins must match']);
+            } 
+
+            $full_name = $validatedData['first_name'] . $validatedData['last_name'];
 
 
             $user = User::create([
-                'full_name' => $validatedData['full_name'],
+                'full_name' => $full_name,
                 'phone_number' => $validatedData['phone_number'],
                 'pin' => $validatedData['pin']
             ]);
@@ -109,34 +119,61 @@ class UserController extends Controller
         
     }
 
-    // WebApp
     public function authenticateUser(Request $request)
     {
-        $request->validate([
-            'phone_number' => 'required|string',
-            'pin' => 'required|string',
+        $validatedData = $request->validate([
+            'phone_number' => 'required|numeric|min:10',
+            'pin' => 'required|min:4',
         ]);
 
-        $user = User::where('phone_number', $request->input('phone_number'))->first();
+        $user = User::where('phone_number', $validatedData['phone_number'])->first();
 
-        if ($user && Hash::check($request->pin, $user->pin)) {
-            $credentials = $request->only('phone_number', 'pin');
-
-            if (Auth::attempt($credentials)) {
-                // Authentication passed, user is logged in
-                Log::info('User logged in successfully');
-                return redirect()->intended('/dashboard'); // Redirect to the intended page or any other desired page
-            } else {
-                Log::error('Failed to login user. Credentials:', $credentials);
-                // Authentication failed, user credentials are invalid
-                return redirect()->route('login')->withErrors(['Invalid credentials.']);
-            }
+        if (!$user) {
+            return redirect()->back()->with('error', 'The user does not exist. Please register.');
         }
 
-        // Handle the case where the user does not exist or the password is incorrect
-        Log::error('User not found or incorrect password.', ['phone_number' => $request->input('phone_number')]);
-        return redirect()->route('login')->withErrors(['Invalid credentials.']);
+        $plainPin = $validatedData['pin'];
+
+        if (Hash::check($plainPin, $user->pin)) {
+            Auth::login($user);
+
+            Log::info('User logged in successfully:', ['user_id' => $user->id]);
+
+            return redirect('/dashboard')->with('success', 'User login successful');
+        } else {
+            Log::error('Failed to login user:', ['user_id' => $user->id]);
+            return redirect()->back()->with('error', 'Failed to login. Check your credentials.');
+        }
     }
+
+    // WebApp
+    // public function authenticateUser(Request $request)
+    // {
+    //     $request->validate([
+    //         'phone_number' => 'required|string',
+    //         'pin' => 'required|string',
+    //     ]);
+
+    //     $user = User::where('phone_number', $request->input('phone_number'))->first();
+
+    //     if ($user && Hash::check($request->pin, $user->pin)) {
+    //         $credentials = $request->only('phone_number', 'pin');
+
+    //         if (Auth::attempt($credentials)) {
+    //             // Authentication passed, user is logged in
+    //             Log::info('User logged in successfully');
+    //             return redirect()->intended('/dashboard'); // Redirect to the intended page or any other desired page
+    //         } else {
+    //             Log::error('Failed to login user. Credentials:', $credentials);
+    //             // Authentication failed, user credentials are invalid
+    //             return redirect()->route('login')->withErrors(['Invalid credentials.']);
+    //         }
+    //     }
+
+    //     // Handle the case where the user does not exist or the password is incorrect
+    //     Log::error('User not found or incorrect password.', ['phone_number' => $request->input('phone_number')]);
+    //     return redirect()->route('login')->withErrors(['Invalid credentials.']);
+    // }
 
 
     // public function getUserInfo()
