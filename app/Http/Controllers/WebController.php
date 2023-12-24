@@ -51,10 +51,6 @@ class WebController extends Controller
     }
 
 
-    // public function registration()
-    // {
-    //     return view('auth.register');
-    // }
     public function register(Request $request)
     {
         try {

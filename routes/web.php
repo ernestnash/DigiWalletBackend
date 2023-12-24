@@ -20,9 +20,12 @@ use App\Http\Controllers\WebController;
 
 
 Route::get('/', [WebController::class, 'index'])->name('login');
-Route::get('/dashboard', [WebController::class, 'dashboard'])->name('dashboard');
+
 Route::post('/login', [WebController::class, 'Login'])->name('login-user');
 
+// Route::middleware("auth:sanctum")->group(function () {
+    Route::get('/dashboard', [WebController::class, 'dashboard'])->name('dashboard')->middleware('auth');
+// });
 
 // Route::get('/dashboard', function () {
 //     return view('admin.dashboard');

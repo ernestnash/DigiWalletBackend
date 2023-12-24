@@ -43,6 +43,10 @@ Route::post('/users/login', [UserController::class, 'authenticateUser']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
 // });
 
+// get user balance
+Route::get('/account/{id}/balance', [UserController::class, 'getUserBalance']);
+
+
 
 // Route::middleware("auth:sanctum")->group(function () {
     // Create a new transaction

@@ -42,7 +42,7 @@ class UserController extends Controller
             if ($validatedData['pin'] != $validatedData['confirm_pin']) {
                 Log::error('Pins did not match');
                 return response()->json(['pins must match']);
-            } 
+            }
 
             $full_name = $validatedData['first_name'] . $validatedData['last_name'];
 
@@ -52,7 +52,7 @@ class UserController extends Controller
                 'phone_number' => $validatedData['phone_number'],
                 'pin' => $validatedData['pin']
             ]);
-            
+
             // Create a new account with default values
             $account = Account::create([
                 'account_number' => $user->id,
@@ -70,7 +70,7 @@ class UserController extends Controller
         } catch (Exception $e) {
             // Log the exception details
             Log::error('User creation failed: ' . $e->getMessage());
-            
+
             // If account creation fails, delete the created user and return an error
             if (isset($user)) {
                 $user->delete();
@@ -79,7 +79,7 @@ class UserController extends Controller
             // If any other exception occurs, return a generic error message
             return response()->json(['error' => 'Failed to create user.'], 500);
         }
-} 
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -94,12 +94,12 @@ class UserController extends Controller
             ]);
 
             $user = User::where('phone_number', $request->input('phone_number'))->first();
-        
+
             $credentials = $request->only('phone_number', 'pin');
             // Log::info('Credentials:', $credentials);
             // Log::info('Login attempt:', $request->all());
             if ($user || Hash::check($request->pin, $user->pin)) {
-            // if (Auth::attempt($credentials)) {
+                // if (Auth::attempt($credentials)) {
                 // Authentication passed, user is logged in
                 Log::info('User logged in successfully');
                 return response()->json(['success' => 'User logged in successfully.']);
@@ -116,7 +116,7 @@ class UserController extends Controller
             Log::error('Exception during login:', ['exception' => $e]);
             return response()->json(['error' => $e->getMessage()], 500);
         }
-        
+
     }
 
     public function authenticateUser(Request $request)
@@ -187,11 +187,11 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        try{
+        try {
             // Retrieve and return user by ID
-        $user = User::findOrFail($id);
+            $user = User::findOrFail($id);
 
-        return response()->json(['user' => $user]);
+            return response()->json(['user' => $user]);
         } catch (ModelNotFoundException $e) {
             // Log the exception details
             Log::error('User not found: ' . $e->getMessage());
@@ -204,6 +204,37 @@ class UserController extends Controller
             return response()->json(['error' => 'Failed to access Database.'], 500);
         }
     }
+
+    /**
+     * Fetch the user's account balance.
+     */
+    public function getUserBalance(string $id)
+    {
+        try {
+            // Retrieve and return user balance by ID
+            $user = User::findOrFail($id);
+
+            $account = Account::where('account_number', $user->id)->first();
+
+            if ($account) {
+                return response()->json(['balance' => $account->account_balance]);
+            } else {
+                // Return a specific error message if account not found
+                return response()->json(['error' => 'Account not found for the user.'], 404);
+            }
+        } catch (ModelNotFoundException $e) {
+            // Log the exception details
+            Log::error('User not found: ' . $e->getMessage());
+            // Return a specific error message for user not found
+            return response()->json(['error' => 'User not found.'], 404);
+        } catch (Exception $e) {
+            // Log the exception details
+            Log::error('Fetch User Balance failed: ' . $e->getMessage());
+            // If any other exception occurs, return a generic error message
+            return response()->json(['error' => 'Failed to access Database.'], 500);
+        }
+    }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -233,10 +264,10 @@ class UserController extends Controller
             $user->update($validatedData);
 
             return response()->json(['message' => 'User updated successfully', 'user' => $user]);
-        } catch(ValidationException $e) {
+        } catch (ValidationException $e) {
             // If validation fails, return validation errors
             return response()->json(['error' => $e->validator->errors()], 422);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             // Log the exception details
             Log::error('Update User failed: ' . $e->getMessage());
             // If any other exception occurs, return a generic error message
@@ -255,10 +286,10 @@ class UserController extends Controller
             $user->delete();
 
             return response()->json(['message' => 'User deleted successfully']);
-        } catch(ValidationException $e) {
+        } catch (ValidationException $e) {
             // If validation fails, return validation errors
             return response()->json(['error' => $e->validator->errors()], 422);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             // Log the exception details
             Log::error('Delete User failed: ' . $e->getMessage());
             // If any other exception occurs, return a generic error message
