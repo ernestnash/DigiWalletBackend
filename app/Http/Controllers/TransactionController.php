@@ -9,6 +9,7 @@ use App\Models\Account;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -155,6 +156,37 @@ class TransactionController extends Controller
             Log::error('Fetch User failed: ' . $e->getMessage());
             // If any other exception occurs, return a generic error message
             return response()->json(['error' => 'Failed to access Database.'], 500);
+        }
+    }
+
+    /**
+     * Fetch all transactions by the currently logged-in user.
+     */
+    public function getLoggedInUserTransactions()
+    {
+        try {
+            // Get the currently authenticated user
+            $user = Auth::user();
+
+            // Check if the user is authenticated
+            if (!$user) {
+                return response()->json(['error' => 'User not authenticated.'], 401);
+            }
+
+            // Retrieve the user's transactions
+            $transactions = $user->transactions;
+
+            // Check if the user has transactions
+            if ($transactions->isEmpty()) {
+                return response()->json(['message' => 'No Transactions to display for the logged-in user.']);
+            }
+
+            return response()->json(['transactions' => $transactions]);
+        } catch (Exception $e) {
+            // Log the exception details
+            Log::error('Fetch User Transactions failed: ' . $e->getMessage());
+            // If any other exception occurs, return a generic error message
+            return response()->json(['error' => 'Failed to fetch user transactions.'], 500);
         }
     }
 

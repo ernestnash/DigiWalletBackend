@@ -30,43 +30,50 @@ Route::post('/users', [UserController::class, 'register']);
 Route::post('/users/login', [UserController::class, 'authenticateUser']);
 
 // Route::middleware("auth:sanctum")->group(function () {
-    // Retrieve user Data
-    // Route::get("/users/{id}/data", [UserController::class, 'getUserInfo']);
+// Retrieve user Data
+// Route::get("/users/{id}/data", [UserController::class, 'getUserInfo']);
 
-    // Retrieve a user by ID
-    Route::get('/users/{id}', [UserController::class, 'show']);
+// Retrieve a user by ID
+Route::get('/users/{id}', [UserController::class, 'show']);
 
-    // Update a user by ID
-    Route::put('/users/{id}', [UserController::class, 'update']);
+// Update a user by ID
+Route::put('/users/{id}', [UserController::class, 'update']);
 
-    // Delete a user by ID
-    Route::delete('/users/{id}', [UserController::class, 'destroy']);
+// Delete a user by ID
+Route::delete('/users/{id}', [UserController::class, 'destroy']);
 // });
 
-// get user balance
-Route::get('/account/{id}/balance', [UserController::class, 'getUserBalance']);
+// Route::middleware('auth')->group(function () {
+    // get all users transactions
+    Route::get('/user/transactions', [TransactionController::class, 'getLoggedInUserTransactions']);
+
+    // get user balance
+    Route::get('/account/{id}/balance', [UserController::class, 'getUserBalance']);
+// });
+
+
 
 
 
 // Route::middleware("auth:sanctum")->group(function () {
-    // Create a new transaction
-    Route::post('/transactions', [TransactionController::class, 'create']);
+// Create a new transaction
+Route::post('/transactions', [TransactionController::class, 'create']);
 
-    // Retrieve all transactions
-    // Route::get('/transactions', [TransactionController::class, 'index']);
+// Retrieve all transactions
+// Route::get('/transactions', [TransactionController::class, 'index']);
 
-    // Retrieve a transaction by ID
-    Route::get('/transactions/{id}', [TransactionController::class, 'show']);
+// Retrieve a transaction by ID
+Route::get('/transactions/{id}', [TransactionController::class, 'show']);
 
-    // Update a transaction by ID
-    // Route::put('/transactions/{id}', [TransactionController::class, 'update']);
+// Update a transaction by ID
+// Route::put('/transactions/{id}', [TransactionController::class, 'update']);
 
-    // Delete a transaction by ID
-    // Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
+// Delete a transaction by ID
+// Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
 
-    // create a new cheque
-    Route::post('/cheques/issue', [ChequeController::class, 'create']);
+// create a new cheque
+Route::post('/cheques/issue', [ChequeController::class, 'create']);
 
-    // Update a cheque
-    Route::put('/cheques/{id}', [ChequeController::class, 'update']);
+// Update a cheque
+Route::put('/cheques/{id}', [ChequeController::class, 'update']);
 // });
