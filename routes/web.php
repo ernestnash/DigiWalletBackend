@@ -18,23 +18,29 @@ use App\Http\Controllers\WebController;
 //     return view('login');
 // })->name('login');
 
-
+// Route for displaying the login form
 Route::get('/', [WebController::class, 'index'])->name('login');
 
+// Route for handling the login form submission
 Route::post('/login', [WebController::class, 'Login'])->name('login-user');
 
-// Route::middleware("auth:sanctum")->group(function () {
-    Route::get('/dashboard', [WebController::class, 'dashboard'])->name('dashboard')->middleware('auth');
-// });
-
-// Route::get('/dashboard', function () {
-//     return view('admin.dashboard');
-// })->name('dashboard');
-
+// Route for displaying the registration form
 Route::get('/register', function () {
     return view('register');
 })->name('register');
 
+// Route for handling the registration form submission
 Route::post('/register', [WebController::class, 'Register'])->name('register-user');
+
+Route::middleware('auth:web')->group(function () {
+    // Protected routes
+
+// Route for the dashboard - only accessible for authenticated users
+Route::get('/dashboard', [WebController::class, 'dashboard'])->name('dashboard');
+
+Route::post('/logout', [WebController::class, 'signOut'])->name('logout');
+
+});
+
 
 

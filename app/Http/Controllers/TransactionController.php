@@ -47,7 +47,7 @@ class TransactionController extends Controller
 
             $validatedData = $request->validate([
                 'account_number' => 'required',
-                'transaction_type' => 'required|in:deposit,withdrawal',
+                'transaction_type' => 'required|in:Deposit,Withdrawal',
                 'amount' => 'required',
                 // 'description' => 'string',
                 // 'reference' => 'string',
@@ -69,13 +69,13 @@ class TransactionController extends Controller
             $currentBalance = $account->account_balance;
 
             // If the transaction is a withdrawal, check if there's enough money in the account
-            if ($validatedData['transaction_type'] === 'withdrawal' && $currentBalance < $validatedData['amount']) {
+            if ($validatedData['transaction_type'] === 'Withdrawal' && $currentBalance < $validatedData['amount']) {
                 $errorMessage = "Not enough money in your account to withdraw {$validatedData['amount']}.";
                 return response()->json(['error' => $errorMessage], 400);
             }
 
             // Determine the new running balance based on the transaction type
-            $newRunningBalance = ($validatedData['transaction_type'] === 'deposit')
+            $newRunningBalance = ($validatedData['transaction_type'] === 'Deposit')
                 ? $currentBalance + $validatedData['amount']
                 : $currentBalance - $validatedData['amount'];
 
@@ -95,9 +95,9 @@ class TransactionController extends Controller
             
 
             // Affect column for account balance whenever a transaction is made
-            if ($validatedData['transaction_type'] === 'deposit') {
+            if ($validatedData['transaction_type'] === 'Deposit') {
                 $account->increment('account_balance', $validatedData['amount']);
-            } elseif ($validatedData['transaction_type'] === 'withdrawal') {
+            } elseif ($validatedData['transaction_type'] === 'Withdrawal') {
                 $account->decrement('account_balance', $validatedData['amount']);
             } // elseif ($validatedData['transaction_type'] === 'transfer') {
             //     $account->decrement('account_balance', $validatedData['amount']);
@@ -162,25 +162,25 @@ class TransactionController extends Controller
     /**
      * Fetch all transactions by the currently logged-in user.
      */
-    public function getLoggedInUserTransactions()
+    public function getUserTransactions($id)
     {
         try {
-            // Get the currently authenticated user
-            $user = Auth::user();
-
-            // Check if the user is authenticated
+            // Find the user by ID
+            $user = User::find($id);
+    
+            // Check if the user exists
             if (!$user) {
-                return response()->json(['error' => 'User not authenticated.'], 401);
+                return response()->json(['error' => 'User not found.'], 404);
             }
-
+    
             // Retrieve the user's transactions
             $transactions = $user->transactions;
-
+    
             // Check if the user has transactions
             if ($transactions->isEmpty()) {
-                return response()->json(['message' => 'No Transactions to display for the logged-in user.']);
+                return response()->json(['message' => 'No transactions to display for the user.']);
             }
-
+    
             return response()->json(['transactions' => $transactions]);
         } catch (Exception $e) {
             // Log the exception details
@@ -189,6 +189,8 @@ class TransactionController extends Controller
             return response()->json(['error' => 'Failed to fetch user transactions.'], 500);
         }
     }
+    
+
 
     /**
      * Show the form for editing the specified resource.

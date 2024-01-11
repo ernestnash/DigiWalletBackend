@@ -26,12 +26,13 @@ use App\Http\Controllers\TransactionController;
 // Create a new user
 Route::post('/users', [UserController::class, 'register']);
 
-// Logging in a new user
-Route::post('/users/login', [UserController::class, 'authenticateUser']);
+// Logging in a user
+Route::post('/users/login', [UserController::class, 'authenticate']);
 
 // Route::middleware("auth:sanctum")->group(function () {
 // Retrieve user Data
 // Route::get("/users/{id}/data", [UserController::class, 'getUserInfo']);
+
 
 // Retrieve a user by ID
 Route::get('/users/{id}', [UserController::class, 'show']);
@@ -45,7 +46,7 @@ Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
 // Route::middleware('auth')->group(function () {
     // get all users transactions
-    Route::get('/user/transactions', [TransactionController::class, 'getLoggedInUserTransactions']);
+    Route::get('/user/{id}/transactions', [TransactionController::class, 'getUserTransactions']);
 
     // get user balance
     Route::get('/account/{id}/balance', [UserController::class, 'getUserBalance']);
@@ -57,10 +58,10 @@ Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
 // Route::middleware("auth:sanctum")->group(function () {
 // Create a new transaction
-Route::post('/transactions', [TransactionController::class, 'create']);
+Route::post('/transactions/new', [TransactionController::class, 'create']);
 
 // Retrieve all transactions
-// Route::get('/transactions', [TransactionController::class, 'index']);
+Route::get('/transactions/all', [TransactionController::class, 'index']);
 
 // Retrieve a transaction by ID
 Route::get('/transactions/{id}', [TransactionController::class, 'show']);

@@ -42,7 +42,7 @@ class WebController extends Controller
 
             Log::info('User logged in successfully:', ['user_id' => $user->id]);
 
-            return redirect('/dashboard')->with('success', 'User login successful');
+            return redirect('/dashboard')->with('success', 'Welcome ' . $user->full_name . ' ' . 'login successful');
         } else {
             Log::error('Failed to login user:', ['user_id' => $user->id]);
 
@@ -125,6 +125,7 @@ class WebController extends Controller
     {
         Session::flush();
         Auth::logout();
-        return Redirect('login');
+        return view('login');
+        // return Redirect('login');
     }
 }

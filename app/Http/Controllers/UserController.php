@@ -6,6 +6,7 @@ use Exception;
 use App\Models\User;
 use App\Models\Account;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -31,24 +32,31 @@ class UserController extends Controller
         try {
 
             $validatedData = $request->validate([
-                'first_name' => 'required|string',
-                'last_name' => 'required|string',
-                'email' => 'required|string|email',
+                'full_name' => 'required|string',
                 'phone_number' => 'required|unique:users,phone_number|string',
                 'pin' => 'required|string',
-                'confirm_pin' => 'required|string',
+                // 'confirm_pin' => 'required|string',
             ]);
+            // $validatedData = $request->validate([
+            //     'first_name' => 'required|string',
+            //     'last_name' => 'required|string',
+            //     'email' => 'required|string|email',
+            //     'phone_number' => 'required|unique:users,phone_number|string',
+            //     'pin' => 'required|string',
+            //     'confirm_pin' => 'required|string',
+            // ]);
 
-            if ($validatedData['pin'] != $validatedData['confirm_pin']) {
-                Log::error('Pins did not match');
-                return response()->json(['pins must match']);
-            }
+            // if ($validatedData['pin'] != $validatedData['confirm_pin']) {
+            //     Log::error('Pins did not match');
+            //     return response()->json(['pins must match']);
+            // }
 
-            $full_name = $validatedData['first_name'] . $validatedData['last_name'];
-
+            // $full_name = $validatedData['first_name'] . $validatedData['last_name'];
+            DB::beginTransaction();
 
             $user = User::create([
-                'full_name' => $full_name,
+                // 'full_name' => $full_name,
+                'full_name' => $validatedData['full_name'],
                 'phone_number' => $validatedData['phone_number'],
                 'pin' => $validatedData['pin']
             ]);
@@ -62,12 +70,23 @@ class UserController extends Controller
             ]);
             $account->save();
 
-            return response()->json(['message' => 'User created successfully', 'user' => $user, 'account' => $account]);
+            DB::commit();
+
+            // Retrieve user data based on the provided user ID
+            $userData = User::find($user->id);
+
+            return response()->json(['user_data' => $userData]);
+
+            // return response()->json(['message' => 'User created successfully', 'user' => $user, 'account' => $account]);
 
         } catch (ValidationException $e) {
             // If validation fails, return validation errors
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (Exception $e) {
+
+            // Rollback the transaction in case of an error
+            DB::rollBack();
+
             // Log the exception details
             Log::error('User creation failed: ' . $e->getMessage());
 
@@ -85,35 +104,36 @@ class UserController extends Controller
      * Store a newly created resource in storage.
      */
     // Mobile App
-public function authenticate(Request $request)
-{
-    try {
-        $request->validate([
-            'phone_number' => 'required|string',
-            'pin' => 'required|string',
-        ]);
-
-        $user = User::where('phone_number', $request->input('phone_number'))->first();
-
-        if ($user && Hash::check($request->pin, $user->pin)) {
-            // Authentication passed, user is logged in
-            Log::info('User logged in successfully');
-
-            // Return user ID along with success response
-            return response()->json([
-                'success' => 'User logged in successfully.',
-                'user_id' => $user->id,
+    public function authenticate(Request $request)
+    {
+        try {
+            $request->validate([
+                'phone_number' => 'required|string',
+                'pin' => 'required|string',
             ]);
-        } else {
-            // Authentication failed, user credentials are invalid
-            Log::error('Failed to login user. Credentials:', $request->only('phone_number'));
-            return response()->json(['error' => 'Failed to login user.'], 500);
+
+            $user = User::where('phone_number', $request->input('phone_number'))->first();
+
+            if ($user && Hash::check($request->pin, $user->pin)) {
+                // Authentication passed, user is logged in
+                Log::info('User logged in successfully');
+
+                // Return user data along with success response
+                return response()->json([
+                    'success' => $user->full_name . ' ' . 'logged in successfully.',
+                    'user' => $user,
+                ]);
+            } else {
+                // Authentication failed, user credentials are invalid
+                Log::error('Failed to login user. Credentials:', $request->only('phone_number'));
+                return response()->json(['error' => 'Failed to login user.'], 500);
+            }
+        } catch (Exception $e) {
+            Log::error('Exception during login:', ['exception' => $e]);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-    } catch (Exception $e) {
-        Log::error('Exception during login:', ['exception' => $e]);
-        return response()->json(['error' => $e->getMessage()], 500);
     }
-}
+
 
 
     public function authenticateUser(Request $request)
