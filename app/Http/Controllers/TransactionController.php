@@ -173,8 +173,8 @@ class TransactionController extends Controller
                 return response()->json(['error' => 'User not found.'], 404);
             }
     
-            // Retrieve the user's transactions
-            $transactions = $user->transactions;
+            // Retrieve the user's transactions and order them by the latest transaction first
+            $transactions = $user->transactions()->orderBy('created_at', 'desc')->get();
     
             // Check if the user has transactions
             if ($transactions->isEmpty()) {
@@ -189,6 +189,7 @@ class TransactionController extends Controller
             return response()->json(['error' => 'Failed to fetch user transactions.'], 500);
         }
     }
+    
     
 
 
