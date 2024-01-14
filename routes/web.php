@@ -30,7 +30,7 @@ Route::get('/register', function () {
 })->name('register');
 
 // Route for handling the registration form submission
-Route::post('/register', [WebController::class, 'Register'])->name('register-user');
+Route::post('/register/new', [WebController::class, 'Register'])->name('register-user');
 
 Route::middleware('auth:web')->group(function () {
     // Protected routes

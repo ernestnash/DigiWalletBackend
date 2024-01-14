@@ -105,34 +105,35 @@ class UserController extends Controller
      */
     // Mobile App
     public function authenticate(Request $request)
-    {
-        try {
-            $request->validate([
-                'phone_number' => 'required|string',
-                'pin' => 'required|string',
+{
+    try {
+        $request->validate([
+            'phone_number' => 'required|string',
+            'pin' => 'required|string',
+        ]);
+
+        $user = User::where('phone_number', $request->input('phone_number'))->first();
+
+        if ($user && Hash::check($request->pin, $user->pin)) {
+            // Authentication passed, user is logged in
+            Log::info('User logged in successfully');
+
+            // Return all user data along with success response
+            return response()->json([
+                'success' => $user->full_name . ' ' . 'logged in successfully.',
+                'user' => $user->toArray(),
             ]);
-
-            $user = User::where('phone_number', $request->input('phone_number'))->first();
-
-            if ($user && Hash::check($request->pin, $user->pin)) {
-                // Authentication passed, user is logged in
-                Log::info('User logged in successfully');
-
-                // Return user data along with success response
-                return response()->json([
-                    'success' => $user->full_name . ' ' . 'logged in successfully.',
-                    'user' => $user,
-                ]);
-            } else {
-                // Authentication failed, user credentials are invalid
-                Log::error('Failed to login user. Credentials:', $request->only('phone_number'));
-                return response()->json(['error' => 'Failed to login user.'], 500);
-            }
-        } catch (Exception $e) {
-            Log::error('Exception during login:', ['exception' => $e]);
-            return response()->json(['error' => $e->getMessage()], 500);
+        } else {
+            // Authentication failed, user credentials are invalid
+            Log::error('Failed to login user. Credentials:', $request->only('phone_number'));
+            return response()->json(['error' => 'Failed to login user.'], 500);
         }
+    } catch (Exception $e) {
+        Log::error('Exception during login:', ['exception' => $e]);
+        return response()->json(['error' => $e->getMessage()], 500);
     }
+}
+
 
 
 

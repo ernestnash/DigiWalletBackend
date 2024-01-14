@@ -66,6 +66,9 @@ Route::get('/transactions/all', [TransactionController::class, 'index']);
 // Retrieve a transaction by ID
 Route::get('/transactions/{id}', [TransactionController::class, 'show']);
 
+// Retrieve a transaction by ID
+Route::post('/transactions/{originAccountId}/transfer/{destinationAccountId}', [TransactionController::class, 'transfer']);
+
 // Update a transaction by ID
 // Route::put('/transactions/{id}', [TransactionController::class, 'update']);
 
