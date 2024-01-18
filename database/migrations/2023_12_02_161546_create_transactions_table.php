@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('account_number'); //foreign key column
             $table->string('transaction_type');
-            $table->string('amount');
+            $table->decimal('amount', 10, 2);
+            $table->string('origin_account')->nullable();
+            $table->string('destination_account')->nullable();
             $table->text('description')->nullable();
             $table->string('reference')->nullable();
             $table->string('method')->nullable();

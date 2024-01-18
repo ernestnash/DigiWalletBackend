@@ -38,6 +38,8 @@ Route::middleware('auth:web')->group(function () {
 // Route for the dashboard - only accessible for authenticated users
 Route::get('/dashboard', [WebController::class, 'dashboard'])->name('dashboard');
 
+Route::get('/user/info/pdf', [WebController::class, 'allUserInfo'])->name('allUserInfo');
+
 Route::post('/logout', [WebController::class, 'signOut'])->name('logout');
 
 });

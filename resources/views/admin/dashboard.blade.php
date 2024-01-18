@@ -78,27 +78,6 @@
             Addons
         </div>
 
-        <!-- Nav Item - Pages Collapse Menu -->
-        <!-- <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
-                aria-expanded="true" aria-controls="collapsePages">
-                <i class="fas fa-fw fa-folder"></i>
-                <span>Pages</span>
-            </a>
-            <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <h6 class="collapse-header">Login Screens:</h6>
-                    <a class="collapse-item" href="login.html">Login</a>
-                    <a class="collapse-item" href="register.html">Register</a>
-                    <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
-                    <div class="collapse-divider"></div>
-                    <h6 class="collapse-header">Other Pages:</h6>
-                    <a class="collapse-item" href="404.html">404 Page</a>
-                    <a class="collapse-item" href="blank.html">Blank Page</a>
-                </div>
-            </div>
-        </li> -->
-
         <!-- Nav Item - Charts -->
         <li class="nav-item">
             <a class="nav-link" href="#">
@@ -219,7 +198,8 @@
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ Auth::user()->full_name }}</span>
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ Auth::user()->full_name
+                                }}</span>
                             <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
                         </a>
                         <!-- Dropdown - User Information -->
@@ -255,46 +235,43 @@
 
                 <!-- Page Heading -->
                 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                    <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+                    <h1 class="h3 mb-0 text-gray-800">DigiWallet Home</h1>
                     @if(Session::has('success'))
-                        <div class="alert alert-success">
-                            {{ Session::get('success')}}
-                        </div>
+                    <div class="alert alert-success" id="success-message">
+                        {{ Session::get('success')}}
+                    </div>
                     @endif
-                    <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                            class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+                    <a href="{{ route('allUserInfo') }}" target="_blank" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                        <i class="fas fa-download fa-sm text-white-50"></i> Generate Report
+                    </a>
                 </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var successMessage = document.getElementById('success-message');
+
+                        if (successMessage) {
+                            setTimeout(function () {
+                                successMessage.style.display = 'none';
+                            }, 5000); 
+                        }
+                    });
+                </script>
+
 
                 <!-- Content Row -->
                 <div class="row">
 
-                    <!-- Earnings (Monthly) Card Example -->
+                    <!-- Balance Card -->
                     <div class="col-xl-3 col-md-6 mb-4">
                         <div class="card border-left-primary shadow h-100 py-2">
                             <div class="card-body">
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
                                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                            In</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">$40,000</div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Earnings (Monthly) Card Example -->
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-success shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                            Out</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">$215,000</div>
+                                            Balance</div>
+                                        <div class="h2 mb-0 font-weight-bold text-gray-800">
+                                            Ksh. {{ number_format($accountBalance, 2) }}</div>
                                     </div>
                                     <div class="col-auto">
                                         <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -303,6 +280,8 @@
                             </div>
                         </div>
                     </div>
+
+
 
                     <!-- Earnings (Monthly) Card Example -->
                     <div class="col-xl-3 col-md-6 mb-4">
@@ -350,6 +329,25 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Savings Card -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Savings</div>
+                                        <div class="h2 mb-0 font-weight-bold text-gray-800">Ksh. 215,000</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
 
                 <!-- Content Row -->
@@ -361,19 +359,38 @@
                         <div class="card shadow mb-4">
                             <!-- Card Header - Dropdown -->
                             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                <h6 class="m-0 font-weight-bold text-primary">Transactions Overview</h6>
+                                <div class="d-flex">
+                                    <h6 class="m-0 font-weight-bold text-primary">Transactions Overview</h6>
+                                    <!-- Dropdown for selecting the graph type -->
+                                    <!-- <div class="dropdown ml-3">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="graphTypeDropdown"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Select Graph
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="graphTypeDropdown">
+                                            
+                                        </div>
+                                    </div> -->
+                                </div>
                                 <div class="dropdown no-arrow">
                                     <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                        aria-labelledby="dropdownMenuLink">
-                                        <div class="dropdown-header">Dropdown Header:</div>
+                                        aria-labelledby="graphTypeDropdown">
+
+                                            <a class="dropdown-item" href="#" onclick="showGraph('Received')">Received</a>
+                                            <a class="dropdown-item" href="#" onclick="showGraph('Sent')">Sent</a>
+                                            <a class="dropdown-item" href="#" onclick="showGraph('Deposit')">Deposit</a>
+                                            <a class="dropdown-item" href="#" onclick="showGraph('Withdrawals')">Withdrawals</a>
+                                            <a class="dropdown-item" href="#" onclick="showGraph('Total')">Total</a>
+
+                                        <!-- <div class="dropdown-header">Dropdown Header:</div>
                                         <a class="dropdown-item" href="#">Action</a>
                                         <a class="dropdown-item" href="#">Another action</a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#">Something else here</a>
+                                        <a class="dropdown-item" href="#">Something else here</a> -->
                                     </div>
                                 </div>
                             </div>
@@ -385,6 +402,41 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Add this script for handling the graph type selection -->
+                    <script>
+
+                        // myLineChart.data.datasets[0].hidden = true;
+
+                        function showGraph(graphType) {
+                            // Set the hidden property for all datasets
+                            myLineChart.data.datasets.forEach(function(dataset) {
+                                dataset.hidden = true;
+                            });
+
+                            // Show the selected dataset
+                            if (graphType === 'Received') {
+                                myLineChart.data.datasets[1].hidden = false;
+                                myLineChart.data.datasets[1].data = receivedDataPoints;
+                            } else if (graphType === 'Sent') {
+                                myLineChart.data.datasets[2].hidden = false;
+                                myLineChart.data.datasets[2].data = sentDataPoints;
+                            } else if (graphType === 'Deposit') {
+                                myLineChart.data.datasets[3].hidden = false;
+                                myLineChart.data.datasets[3].data = depositDataPoints;
+                            } else if (graphType === 'Withdrawals') {
+                                myLineChart.data.datasets[4].hidden = false;
+                                myLineChart.data.datasets[4].data = withdrawalDataPoints;
+                            } else if (graphType === 'Total') {
+                                myLineChart.data.datasets[0].hidden = false;
+                                myLineChart.data.datasets[0].data = accumulatedValues;
+                            }
+
+                            // Update the chart
+                            myLineChart.update();
+                        }
+                    </script>
+
 
                     <!-- Pie Chart -->
                     <div class="col-xl-4 col-lg-5">
@@ -430,10 +482,10 @@
 
                 <div class="row">
 
-                    
 
-                        <!-- Color System -->
-                        <!-- <div class="row">
+
+                    <!-- Color System -->
+                    <!-- <div class="row">
                             <div class="col-lg-6 mb-4">
                                 <div class="card bg-primary text-white shadow">
                                     <div class="card-body">
@@ -500,12 +552,12 @@
                             </div>
                         </div> -->
 
-                    </div>
+                </div>
 
-                    <div class="col-lg-6 mb-4">
+                <div class="col-lg-6 mb-4">
 
-                        <!-- Illustrations -->
-                        <!--<div class="card shadow mb-4">
+                    <!-- Illustrations -->
+                    <!--<div class="card shadow mb-4">
                             <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-primary">Illustrations</h6>
                             </div>
@@ -523,8 +575,8 @@
                             </div>
                         </div> -->
 
-                        <!-- Approach -->
-                        <!-- <div class="card shadow mb-4">
+                    <!-- Approach -->
+                    <!-- <div class="card shadow mb-4">
                             <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-primary">Development Approach</h6>
                             </div>
@@ -537,33 +589,33 @@
                             </div>
                         </div> -->
 
-                        <div class="card shadow mb-4">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Recent Transactions</h6>
-                            </div>
-                            <div class="card-body">
-                                <ul>
-                                    <li>1</li>
-                                    <li>1</li>
-                                    <li>1</li>
-                                    <li>1</li>
-                                </ul>
-                            </div>
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Recent Transactions</h6>
                         </div>
-
+                        <div class="card-body">
+                            <ul>
+                                <li>1</li>
+                                <li>1</li>
+                                <li>1</li>
+                                <li>1</li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
 
+                </div>
             </div>
-            <!-- /.container-fluid -->
 
         </div>
-        <!-- End of Main Content -->
-
-        {{-- Footer goes here--}}
+        <!-- /.container-fluid -->
 
     </div>
-    <!-- End of Content Wrapper -->
+    <!-- End of Main Content -->
+
+    {{-- Footer goes here--}}
+
+</div>
+<!-- End of Content Wrapper -->
 
 </div>
 <!-- End of Page Wrapper -->
@@ -591,10 +643,30 @@
                     @csrf
                     <button class="btn btn-primary" type="submit">Logout</button>
                 </form>
-                
+
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+    <!-- Add this script to pass transaction labels and data to the JavaScript file -->
+    <script>
+        var transactionLabels = @json($transactions->pluck('created_at')->map(function ($date) {
+            return $date->format('d/m/y');
+        })->toArray());
+
+
+        var receivedData = @json($transactions->where('transaction_type', 'Received')->pluck('amount', 'created_at')->toArray());
+        var sentData = @json($transactions->where('transaction_type', 'Sent')->pluck('amount', 'created_at')->toArray());
+        var depositData = @json($transactions->where('transaction_type', 'Deposit')->pluck('amount', 'created_at')->toArray());
+        var withdrawalData = @json($transactions->where('transaction_type', 'Withdrawal')->pluck('amount', 'created_at')->toArray());
+
+        var transactionsData = @json($transactions->pluck('amount', 'created_at')->toArray());
+    </script>
+
+    <!-- Include your JavaScript file -->
+    <script src="{{ asset('js/chart-area-demo.js') }}"></script>
 
 @endsection

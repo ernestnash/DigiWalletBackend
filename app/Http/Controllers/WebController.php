@@ -1,9 +1,12 @@
 <?php
 namespace App\Http\Controllers;
 
+use DateTime;
 use Exception;
 use App\Models\User;
+use App\Models\Cheque;
 use App\Models\Account;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -11,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class WebController extends Controller
 {
@@ -20,8 +24,59 @@ class WebController extends Controller
     }
     public function dashboard()
     {
-        return view('admin.dashboard');
+        $user = Auth::user();
+
+        // Fetch data from the cheques table
+        $cheques = Cheque::where('account_number', $user->id)->get();
+
+        // Fetch transactions for the user within the last 30 days
+        $transactions = Transaction::where('account_number', $user->id)
+            ->where('created_at', '>=', now()->subDays(30))
+            ->get();
+
+        $transactions = $transactions->sortBy('created_at');
+
+
+        // Fetch data from the accounts table (use first() instead of get())
+        $account = Account::where('account_number', $user->id)->first();
+
+        // Check if the account exists before trying to access its properties
+        $accountBalance = $account ? $account->account_balance : null;
+
+        // Fetch user data from the users table
+        $userData = User::find($user->id);
+
+        // Pass all the fetched data to the view
+        return view('admin.dashboard', compact('cheques', 'accountBalance', 'transactions', 'account', 'userData'));
     }
+
+
+    public function allUserInfo()
+    {
+        $user = Auth::user();
+
+        // Fetch data from the cheques table
+        $cheques = Cheque::where('account_number', $user->id)->get();
+
+        // Fetch transactions for the user within the last 30 days
+        $transactions = Transaction::where('account_number', $user->id)
+            ->where('created_at', '>=', now()->subDays(30))
+            ->get();
+
+        // Fetch data from the accounts table
+        $accounts = Account::where('account_number', $user->id)->get();
+
+        // Fetch user data from the users table
+        $userData = User::find($user->id);
+        $filename = $userData->full_name . '.pdf';
+
+        $pdf = Pdf::loadView('admin.pdf.userinfo', compact('cheques', 'transactions', 'accounts', 'userData'));
+
+        return $pdf->stream($filename);
+    }
+
+
+
     public function login(Request $request)
     {
         $validatedData = $request->validate([

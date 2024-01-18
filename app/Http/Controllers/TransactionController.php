@@ -201,7 +201,7 @@ class TransactionController extends Controller
     {
         // Validate the request data
         $request->validate([
-            'amount' => 'required|numeric|min:100',
+            'amount' => 'required|numeric|min:50',
         ]);
 
         // Retrieve the accounts
@@ -230,6 +230,7 @@ class TransactionController extends Controller
                 'account_number' => $originAccount->account_number,
                 'transaction_type' => 'Sent',
                 'amount' => $amount,
+                'destination_account' => $destinationUser->full_name,
                 'running_balance' => $originAccount->account_balance - $amount,
                 'description' => $transferDescription,
             ]);
@@ -239,6 +240,7 @@ class TransactionController extends Controller
                 'account_number' => $destinationAccount->account_number,
                 'transaction_type' => 'Received',
                 'amount' => $amount,
+                'origin_account' => $originUser->full_name,
                 'running_balance' => $destinationAccount->account_balance + $amount,
                 'description' => $transferDescription,
             ]);

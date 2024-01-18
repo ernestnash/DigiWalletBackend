@@ -35,7 +35,7 @@ class UserController extends Controller
                 'full_name' => 'required|string',
                 'phone_number' => 'required|unique:users,phone_number|string',
                 'pin' => 'required|string',
-                // 'confirm_pin' => 'required|string',
+                'confirm_pin' => 'required|string',
             ]);
             // $validatedData = $request->validate([
             //     'first_name' => 'required|string',
@@ -46,10 +46,10 @@ class UserController extends Controller
             //     'confirm_pin' => 'required|string',
             // ]);
 
-            // if ($validatedData['pin'] != $validatedData['confirm_pin']) {
-            //     Log::error('Pins did not match');
-            //     return response()->json(['pins must match']);
-            // }
+            if ($validatedData['pin'] != $validatedData['confirm_pin']) {
+                Log::error('Pins did not match');
+                return response()->json(['pins must match']);
+            }
 
             // $full_name = $validatedData['first_name'] . $validatedData['last_name'];
             DB::beginTransaction();

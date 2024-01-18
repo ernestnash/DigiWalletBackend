@@ -20,6 +20,8 @@ class Transaction extends Model
         'account_number',
         'transaction_type',
         'amount',
+        'origin_account',
+        'destination_account',
         'description',
         'reference',
         'method',
