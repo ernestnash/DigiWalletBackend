@@ -16,6 +16,9 @@ return new class extends Migration
             // $table->id('customer_id')->startingFrom(10000000);
             $table->string('full_name');
             $table->string('phone_number')->unique();
+            $table->string('email')->unique();
+            $table->string('otp');
+            $table->string('otp_expires_at');
             $table->timestamp('phone_number_verified_at')->nullable();
             $table->string('pin');
             $table->rememberToken();

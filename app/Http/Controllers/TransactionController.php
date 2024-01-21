@@ -58,6 +58,9 @@ class TransactionController extends Controller
                 // 'status' => 'string',
             ]);
 
+            // Generate a unique reference
+            $reference = $this->generateUniqueReference();
+
             // Get account
             $account = Account::findOrFail($validatedData['account_number']);
 
@@ -90,6 +93,7 @@ class TransactionController extends Controller
                 // 'method' => $validatedData['method'],
                 // 'fee' => $validatedData['fee'],
                 'running_balance' => $newRunningBalance,
+                'reference' => $reference,
                 // 'status' => $validatedData['status'],
             ]);
 
@@ -212,6 +216,9 @@ class TransactionController extends Controller
         $originUser = $originAccount->user;
         $destinationUser = $destinationAccount->user;
 
+        // Generate a unique reference
+        $reference = $this->generateUniqueReference();
+
         // Perform the funds transfer
         $amount = $request->input('amount');
         $transferDescription = "Transfer from $originUser->full_name acc no $originAccountId to $destinationUser->full_name acc no $destinationAccountId";
@@ -233,6 +240,7 @@ class TransactionController extends Controller
                 'destination_account' => $destinationUser->full_name,
                 'running_balance' => $originAccount->account_balance - $amount,
                 'description' => $transferDescription,
+                'reference' => $reference,
             ]);
 
             // Create a transaction for the destination account (Received)
@@ -243,6 +251,7 @@ class TransactionController extends Controller
                 'origin_account' => $originUser->full_name,
                 'running_balance' => $destinationAccount->account_balance + $amount,
                 'description' => $transferDescription,
+                'reference' => $reference,
             ]);
 
             // Update the balances
@@ -267,16 +276,115 @@ class TransactionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function expenses(Request $request, $account_number)
     {
-        //
+        $request->validate([
+            'expenditure_type' => 'required',
+            'selected_option' => 'required',
+            'expenditure_account' => 'required',
+            'amount' => 'required|numeric|min:50',
+            'fee' => 'required|numeric',
+        ]);
+
+        $expense_account = Account::findOrFail($account_number);
+
+        $amount = $request->amount;
+
+        // Start a database transaction to ensure data consistency
+        DB::beginTransaction();
+
+        try {
+            // Ensure the origin account has sufficient balance
+            if ($expense_account->account_balance < $amount) {
+                throw new Exception('Insufficient balance');
+            }
+
+            // Generate a unique reference
+            $reference = $this->generateUniqueReference();
+
+            // Create a transaction for the origin account (Sent)
+            $transactionData = [
+                'account_number' => $expense_account->account_number,
+                'transaction_type' => $request->expenditure_type,
+                'amount' => $amount,
+                'fee' => $request->fee,
+                'destination_account' => $request->selected_option,
+                'running_balance' => $expense_account->account_balance - ($amount + $request->fee),
+                'reference' => $reference,
+            ];
+
+            // Check if the selected option is 'Pay Bill' and include the paybill number
+            if ($request->selected_option == 'Pay Bill') {
+                $transactionData['method'] = $request->paybill_number;
+            }
+
+            $expense = Transaction::create($transactionData);
+
+            // Update the balances
+            $expense_account->decrement('account_balance', $amount);
+
+            // Commit the transaction
+            DB::commit();
+
+            // You can return a response or perform additional actions as needed
+            return response()->json(['message' => 'Bills Settled Successfully']);
+        } catch (Exception $e) {
+
+            Log::error($e);
+            // Something went wrong, rollback the transaction
+            DB::rollBack();
+
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
+
+    private function generateUniqueReference()
+    {
+        // Generate a unique 8-character reference starting with 'A'
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+        do {
+            $reference = 'A' . substr(str_shuffle($characters), 0, 7);
+        } while (Transaction::where('reference', $reference)->exists());
+
+        return $reference;
+    }
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function getExpenses(string $account_number, $transaction_type)
     {
-        //
+        try {
+
+            $account = Account::findOrFail($account_number);
+
+            // Check if the user exists
+            if (!$account) {
+                return response()->json(['error' => 'Account not found.'], 404);
+            }
+
+            // Retrieve the user's transactions and order them by the latest transaction first
+            // $transactions = $account->transactions()->orderBy('created_at', 'desc')->get();
+
+            $transactions = Transaction::where('account_number', $account->account_number)
+                ->where('transaction_type', $transaction_type)
+                ->get();
+
+
+            // Check if the user has transactions
+            if ($transactions->isEmpty()) {
+                return response()->json(['message' => 'No transactions to display for the user.']);
+            }
+
+            return response()->json(['transactions' => $transactions]);
+        } catch (Exception $e) {
+            // Log the exception details
+            Log::error('Fetch User Transactions failed: ' . $e->getMessage());
+            // If any other exception occurs, return a generic error message
+            return response()->json(['error' => 'Failed to fetch user transactions.'], 500);
+        }
     }
+
 }

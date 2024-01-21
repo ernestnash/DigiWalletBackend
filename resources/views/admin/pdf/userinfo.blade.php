@@ -28,7 +28,8 @@
 
         .user-info,
         .company-info {
-            width: 50%
+            width: 50%;
+            text-align: right; /* Align text to the right in both columns */
         }
 
         .user-info p,
@@ -73,6 +74,8 @@
         <p>Full Name: {{ $userData->full_name }}</p>
         <p>Phone Number: {{ $userData->phone_number }}</p>
     </div>
+
+    <!-- Add additional sections for account information here -->
 
 </body>
 

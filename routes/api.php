@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ChequeController;
+use App\Http\Controllers\OTPController;
 use App\Http\Controllers\TransactionController;
 
 /*
@@ -37,8 +38,18 @@ Route::post('/users/login', [UserController::class, 'authenticate']);
 // Retrieve a user by ID
 Route::get('/users/{id}', [UserController::class, 'show']);
 
+Route::get('/user/find/{phone_number}', [OTPController::class, 'findUser']);
+
+// Route::post('/user/request/otp', [OTPController::class, 'index']);
+Route::post('/user/request/otp', [OTPController::class, 'requestOtp']);
+
+Route::post('/user/verify/otp', [OTPController::class, 'verifyOtp']);
+
 // Update a user by ID
-Route::put('/users/{id}', [UserController::class, 'update']);
+// Route::put('/users/{id}', [UserController::class, 'update']);
+Route::put('/users/change/pin/{phone_number}', [UserController::class, 'changePin']);
+
+Route::post('/send-otp', [OTPController::class, 'sendOTP']);
 
 // Delete a user by ID
 Route::delete('/users/{id}', [UserController::class, 'destroy']);
@@ -66,8 +77,16 @@ Route::get('/transactions/all', [TransactionController::class, 'index']);
 // Retrieve a transaction by ID
 Route::get('/transactions/{id}', [TransactionController::class, 'show']);
 
-// Retrieve a transaction by ID
+// transfer between accounts
 Route::post('/transactions/{originAccountId}/transfer/{destinationAccountId}', [TransactionController::class, 'transfer']);
+
+// expenses
+Route::post('/transactions/expenses/{account_number}', [TransactionController::class, 'expenses']);
+
+// retrieve expenses for user
+Route::get('/transactions/expenses/{account_number}/{transaction_type}', [TransactionController::class, 'getExpenses']);
+
+
 
 // Update a transaction by ID
 // Route::put('/transactions/{id}', [TransactionController::class, 'update']);

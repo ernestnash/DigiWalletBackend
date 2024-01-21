@@ -554,7 +554,7 @@
 
                 </div>
 
-                <div class="col-lg-6 mb-4">
+                <!-- <div class="col-lg-6 mb-4"> -->
 
                     <!-- Illustrations -->
                     <!--<div class="card shadow mb-4">
@@ -589,21 +589,32 @@
                             </div>
                         </div> -->
 
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Recent Transactions</h6>
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Recent Transactions</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @foreach($transactions->take(5) as $transaction)
+                                        <div class="col mb-4">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Transaction Reference: {{ $transaction->id }}</h5>
+                                                    <p class="card-text">Amount: {{ $transaction->amount }}</p>
+                                                    <p class="card-text">Type: {{ $transaction->transaction_type }}</p>
+                                                    <a href="#" class="btn btn-primary">View Details</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <ul>
-                                <li>1</li>
-                                <li>1</li>
-                                <li>1</li>
-                                <li>1</li>
-                            </ul>
-                        </div>
-                    </div>
 
-                </div>
+
+
+
+                <!-- </div> -->
             </div>
 
         </div>

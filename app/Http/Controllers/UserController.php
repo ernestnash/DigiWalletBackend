@@ -32,10 +32,11 @@ class UserController extends Controller
         try {
 
             $validatedData = $request->validate([
-                'full_name' => 'required|string',
-                'phone_number' => 'required|unique:users,phone_number|string',
-                'pin' => 'required|string',
-                'confirm_pin' => 'required|string',
+                'first_name' => 'required|string',
+                'last_name' => 'required|string',
+                'phone_number' => 'required|unique:users,phone_number|numeric',
+                'pin' => 'required|numeric|min:4|max:6',
+                'confirm_pin' => 'required|numeric|min:4|max:6',
             ]);
             // $validatedData = $request->validate([
             //     'first_name' => 'required|string',
@@ -51,12 +52,12 @@ class UserController extends Controller
                 return response()->json(['pins must match']);
             }
 
-            // $full_name = $validatedData['first_name'] . $validatedData['last_name'];
             DB::beginTransaction();
 
             $user = User::create([
                 // 'full_name' => $full_name,
-                'full_name' => $validatedData['full_name'],
+                'first_name' => $validatedData['first_name'],
+                'last_name' => $validatedData['last_name'],
                 'phone_number' => $validatedData['phone_number'],
                 'pin' => $validatedData['pin']
             ]);
@@ -75,7 +76,7 @@ class UserController extends Controller
             // Retrieve user data based on the provided user ID
             $userData = User::find($user->id);
 
-            return response()->json(['user_data' => $userData]);
+            return response()->json(['user' => $userData->toArray()]);
 
             // return response()->json(['message' => 'User created successfully', 'user' => $user, 'account' => $account]);
 
@@ -105,34 +106,34 @@ class UserController extends Controller
      */
     // Mobile App
     public function authenticate(Request $request)
-{
-    try {
-        $request->validate([
-            'phone_number' => 'required|string',
-            'pin' => 'required|string',
-        ]);
-
-        $user = User::where('phone_number', $request->input('phone_number'))->first();
-
-        if ($user && Hash::check($request->pin, $user->pin)) {
-            // Authentication passed, user is logged in
-            Log::info('User logged in successfully');
-
-            // Return all user data along with success response
-            return response()->json([
-                'success' => $user->full_name . ' ' . 'logged in successfully.',
-                'user' => $user->toArray(),
+    {
+        try {
+            $request->validate([
+                'phone_number' => 'required|string',
+                'pin' => 'required|string',
             ]);
-        } else {
-            // Authentication failed, user credentials are invalid
-            Log::error('Failed to login user. Credentials:', $request->only('phone_number'));
-            return response()->json(['error' => 'Failed to login user.'], 500);
+
+            $user = User::where('phone_number', $request->input('phone_number'))->first();
+
+            if ($user && Hash::check($request->pin, $user->pin)) {
+                // Authentication passed, user is logged in
+                Log::info('User logged in successfully');
+
+                // Return all user data along with success response
+                return response()->json([
+                    'success' => $user->full_name . ' ' . 'logged in successfully.',
+                    'user' => $user->toArray(),
+                ]);
+            } else {
+                // Authentication failed, user credentials are invalid
+                Log::error('Failed to login user. Credentials:', $request->only('phone_number'));
+                return response()->json(['error' => 'Failed to login user.'], 500);
+            }
+        } catch (Exception $e) {
+            Log::error('Exception during login:', ['exception' => $e]);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-    } catch (Exception $e) {
-        Log::error('Exception during login:', ['exception' => $e]);
-        return response()->json(['error' => $e->getMessage()], 500);
     }
-}
 
 
 
@@ -234,27 +235,50 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function changePin(Request $request, $phone_number)
     {
         try {
             // Validate and update user data
+            // $validatedData = $request->validate([
+            //     // 'full_name' => 'required|string',
+            //     // 'phone_number' => 'required|string',
+            //     'pin' => 'required|numeric|in:4,6',
+            // ]);
+            // $phone = $validatedData['phone_number'];
+
             $validatedData = $request->validate([
-                'full_name' => 'required|string',
-                'phone_number' => 'required|string',
+                'pin' => [
+                    'required',
+                    'numeric',
+                    function ($attribute, $value, $fail) {
+                        if (!(strlen($value) === 4 || strlen($value) === 6)) {
+                            $fail('The ' . $attribute . ' must be either 4 or 6 digits.');
+                        }
+                    },
+                ],
             ]);
 
-            $user = User::findOrFail($id);
-            $user->update($validatedData);
+            $user = User::where('phone_number', $phone_number)->first();
 
-            return response()->json(['message' => 'User updated successfully', 'user' => $user]);
+            if (!$user) {
+                return response()->json(['error' => 'User not found.'], 404);
+            }
+
+            $user->pin = $validatedData['pin'];
+            $user->save();
+
+            return response()->json(['message' => 'User Pin Updated successfully', 'user' => $user]);
         } catch (ValidationException $e) {
             // If validation fails, return validation errors
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (Exception $e) {
             // Log the exception details
-            Log::error('Update User failed: ' . $e->getMessage());
+            Log::error('Pin Update for User failed: ' . $e->getMessage());
+
+            // Log the specific database error
+            // Log::error('Database error: ' . $e->getPrevious()->getMessage());
             // If any other exception occurs, return a generic error message
-            return response()->json(['error' => 'Failed to Update User on Database.'], 500);
+            return response()->json(['error' => 'Failed to Update User Pin on Database.'], 500);
         }
     }
 
