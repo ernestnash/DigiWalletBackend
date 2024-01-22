@@ -130,6 +130,7 @@ class WebController extends Controller
             $user = User::create([
                 'full_name' => $full_name,
                 'phone_number' => $validatedData['phone_number'],
+                'email' => $validatedData['email'],
                 'pin' => $validatedData['pin']
             ]);
 

@@ -9926,17 +9926,17 @@ a:focus {
     }
 }
 .bg-login-image {
-    background: url(https://source.unsplash.com/K4mSJ7kc0As/600x800);
+    background: url("../img/DigiIcon.png");
     background-position: center;
     background-size: cover;
 }
 .bg-register-image {
-    background: url(https://source.unsplash.com/Mv9hjnEUHR4/600x800);
+    background: url("../img/DigiIcon.png");
     background-position: center;
     background-size: cover;
 }
 .bg-password-image {
-    background: url(https://source.unsplash.com/oWTW-jNGl9I/600x800);
+    background: url("../img/DigiIcon.png");
     background-position: center;
     background-size: cover;
 }
@@ -10324,4 +10324,46 @@ footer.sticky-footer .copyright {
 }
 body.sidebar-toggled footer.sticky-footer {
     width: 100%;
+}
+
+.code-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 40px 0;
+}
+
+.code {
+    caret-color: transparent;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    border: 1px solid #eee;
+    font-size: 30px;
+    width: 65px;
+    height: 70px;
+    margin: 10px;
+    text-align: center;
+    font-weight: 300;
+}
+
+@media (max-width: 600px) {
+    .code-container {
+        flex-wrap: wrap;
+    }
+    .code {
+        font-size: 24;
+        max-width: 50;
+        width: auto;
+        font-size: bold;
+    }
+}
+
+.code::-webkit-outer-spin-button,
+.code::-webkit-inner-spin-button {
+    -webkit-appearance: once;
+}
+
+.code:valid {
+        border-color: #9861c2;
+        box-shadow: 1px 10px 10px -5px rgba(0, 0, 0, 0.25);
 }

@@ -29,6 +29,14 @@ Route::get('/register', function () {
     return view('register');
 })->name('register');
 
+Route::get('/reset/pin', function () {
+    return view('reset-pin');
+})->name('reset-pin');
+
+Route::get('/enter/otp', function () {
+    return view('enter-otp');
+})->name('enter-otp');
+
 // Route for handling the registration form submission
 Route::post('/register/new', [WebController::class, 'Register'])->name('register-user');
 

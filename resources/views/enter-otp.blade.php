@@ -17,7 +17,8 @@
                         <div class="col-lg-6">
                             <div class="p-5">
                                 <div class="text-center">
-                                    <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
+                                    <h1 class="h4 text-gray-900 mb-4">Reset Pin</h1>
+                                    <p class="">Enter OTP sent to your email to verify your account</p>
                                 </div>
                                 @if ($errors->any())
                                     <div class="alert alert-danger">
@@ -35,34 +36,39 @@
                                         {{ Session::get('success')}}
                                     </div>
                                 @endif
-                                <form class="user" method="POST" action="{{ url('login') }}">
+                                <form class="user" method="POST" action="{{ url('verify') }}">
                                     @csrf
                                     <div class="form-group">
-                                        <input type="text" class="form-control form-control-user"
-                                            id="phone_number" name="phone_number"
-                                            placeholder="Enter Account Number...">
+                                            <div class="code-container">
+                                                <input type="text" name="" id="" class="code" placeholder="0" min="0" max="9" required>
+                                                <input type="text" name="" id="" class="code" placeholder="0" min="0" max="9" required>
+                                                <input type="text" name="" id="" class="code" placeholder="0" min="0" max="9" required>
+                                                <input type="text" name="" id="" class="code" placeholder="0" min="0" max="9" required>
+                                            </div>
                                     </div>
-                                    <div class="form-group">
-                                        <input type="password" class="form-control form-control-user"
-                                            id="pin" name="pin" placeholder="Enter Pin">
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="custom-control custom-checkbox small">
-                                            <input type="checkbox" class="custom-control-input" id="customCheck">
-                                            <label class="custom-control-label" for="customCheck">Remember
-                                                Me</label>
-                                        </div>
-                                    </div>
+                                    <script>
+                                        const codes = document.querySelectorAll('.code');
+
+                                        codes[0].focus();
+
+                                        codes.forEach((code, idx) => {
+                                            code.addEventListener('keydown', (e) => {
+                                                if(e.key >= 0 && e.key <= 9) {
+                                                    codes[idx].value = ''
+                                                    setTimeout(() => codes[idx+1].focus(), 10)
+                                                } else if(e.key === 'Backspace') {
+                                                    setTimeout(() => codes[idx - 1].focus(), 10)
+                                                }
+                                            })
+                                        })
+                                                                            </script>
                                     <button type="submit" class="btn btn-primary btn-user btn-block">
-                                        Login
+                                        Verify
                                     </button>
                                 </form>
                                 <hr>
                                 <div class="text-center">
-                                    <a class="small" href="{{ route('reset-pin')}}">Forgot Pin?</a>
-                                </div>
-                                <div class="text-center">
-                                    <a class="small" href="{{ route('register')}}">Create an Account!</a>
+                                <small class="small">if you didn't receive code </small><strong>Resend!!!</strong>
                                 </div>
                             </div>
                         </div>
