@@ -18,7 +18,7 @@
                             <div class="p-5">
                                 <div class="text-center">
                                     <h1 class="h4 text-gray-900 mb-4">Reset Pin</h1>
-                                    <h5 class="h5 mb-4">Enter account number to verify your account</h5>
+                                    <h5 class="h5 mb-4">Help us find your account</h5>
                                 </div>
                                 @if ($errors->any())
                                     <div class="alert alert-danger">

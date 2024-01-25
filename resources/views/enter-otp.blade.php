@@ -18,7 +18,7 @@
                             <div class="p-5">
                                 <div class="text-center">
                                     <h1 class="h4 text-gray-900 mb-4">Reset Pin</h1>
-                                    <p class="">Enter OTP sent to your email to verify your account</p>
+                                    <p class="">Enter OTP sent to your email to verify your identity</p>
                                 </div>
                                 @if ($errors->any())
                                     <div class="alert alert-danger">
